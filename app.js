@@ -7,7 +7,7 @@ async function run() {
   // a valid username and password! Note that in a production environment,
   // you do not want to store your password in plain-text here.
   const uri =
-    "mongodb+srv://<user>:<password>@<cluster-url>?retryWrites=true&w=majority";
+    "mongodb+srv://teoramites:Lalocapo1.@customers.dm758jh.mongodb.net/?retryWrites=true&w=majority&appName=Customers";
 
   // The MongoClient is the object that references the connection to our
   // datastore (Atlas, for example)
@@ -91,6 +91,24 @@ async function run() {
   try {
     const insertManyResult = await collection.insertMany(recipes);
     console.log(`${insertManyResult.insertedCount} documents successfully inserted.\n`);
+  } catch (err) {
+    console.error(`Something went wrong trying to insert the new documents: ${err}\n`);
+  }
+
+  const oneRecipe = {
+    name: 'Asado',
+    ingredients: [
+      "chorizo",
+      "morcilla",
+      "matambrito de cerdo",
+      'costillar',
+      "vacio"
+    ],
+    prepTimeInMinutes: 90,
+  };
+  try{
+    const insertOneResult = await collection.insert(oneRecipe)
+    console.log(`${oneRecipe.name} successfully inserted.\n`);
   } catch (err) {
     console.error(`Something went wrong trying to insert the new documents: ${err}\n`);
   }
