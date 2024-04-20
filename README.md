@@ -5,7 +5,7 @@
 The purpose of forking this repository was to gain a deeper understanding 
 of MongoDB and Express.js integration. The goal was to learn how to create 
 a server API by defining routes and handling HTTP request methods such 
-as GET, POST, PUT, and DELETE. It was fascinating to observe how these 
+as GET, POST, PUT, and DELETE. It was intriguing to observe how these 
 technologies interact within a Node.js environment.
 
 ## MongoDB
