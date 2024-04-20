@@ -9,7 +9,7 @@ async function run() {
   //1. Start the express server with a port
   //2. Define the data function to create the specific object you want to store
   //3. Define the data array for the objects post
-  //4. Create routes and handlers for the API (GET ALL, GET ID, POST, PUT)
+  //4. Create routes and handlers for the API (GET (id, all, conditional), POST, PUT, DELETE)
   //5. Store the posts into MongoDB as it follows
   
   // Import the express module
@@ -35,13 +35,6 @@ async function run() {
     };
   }
 
-  // // Define the data array for the blog posts
-  // const posts = [
-  //   createPost(1, 'Hello World', 'This is my first blog post', 'Alice'),
-  //   createPost(2, 'Express JS', 'This is a blog post about Express JS', 'Bob'),
-  //   createPost(3, 'RESTful API', 'This is a blog post about RESTful API', 'Charlie'),
-  // ];
-  
   // Create a route and a handler for GET /posts
   app.get('/posts', async (req, res) => {
     try {
@@ -81,23 +74,27 @@ async function run() {
     }
   });
 
+
+  app.use(express.json());
+
   // Create a route and a handler for POST /posts
-  app.post('/posts', (req, res) => {
+  app.post('/posts', async (req, res) => {
     // To handle the request body, we need to use a middleware called express.json
     // This middleware parses the request body as JSON and adds it to the req object
-    app.use(express.json());
 
     // Get the data from the request body
     const data = req.body;
-
+    console.log(`Data: ${data}`)
     // Validate the data
     if (data.title && data.content && data.author) {
       // If the data is valid, create a new post object with a new id
+      let posts = await getPosts();
       const newId = posts.length + 1;
-      const newPost = new Post(newId, data.title, data.content, data.author);
+      const newPost = createPost(newId, data.title, data.content, data.author);
 
       // Add the new post to the posts array
-      posts.push(newPost);
+      await insertPost(newPost);
+      // posts.push(newPost);
 
       // Send a 201 status code and the new post as a JSON response
       res.status(201).json(newPost);
@@ -106,8 +103,9 @@ async function run() {
       res.status(400).send('Invalid data');
     }
   });
+
   // Create a route and a handler for PUT /posts/:id
-  app.put('/posts/:id', (req, res) => {
+  app.put('/posts/:id', async (req, res) => {
     // To handle the request body, we need to use the express.json middleware
     app.use(express.json());
 
@@ -120,13 +118,14 @@ async function run() {
     // Validate the data
     if (data.title && data.content && data.author) {
       // If the data is valid, find the post with the given id in the posts array
-      const post = posts.find((p) => p.id == id);
+      let post = await getPostById(id);
 
       // If the post exists, update its properties with the data
       if (post) {
-        post.title = data.title;
-        post.content = data.content;
-        post.author = data.author;
+        // post.title = data.title;
+        // post.content = data.content;
+        // post.author = data.author;
+        post = await updatePost(post, data.title, data.content, data.author);
 
         // Send a 200 status code and the updated post as a JSON response
         res.status(200).json(post);
@@ -213,7 +212,43 @@ async function run() {
       console.error(`Something went wrong trying to find the documents: ${err}\n`);
       return {};
     }
+  }
 
+  async function insertPost(post){
+    try{
+      await collection.insert(post)
+      console.log(`${post.title} successfully inserted.\n`);
+    } catch (err) {
+      console.error(`Something went wrong trying to insert the new documents: ${err}\n`);
+    }
+  }
+
+  //  * You can update a single document or multiple documents in a single call.
+  //  *
+  //  * Here we update the PrepTimeInMinutes value on the document we
+  //  * just found.
+  //  */
+  
+
+  // The following updateOptions document specifies that we want the *updated*
+  // document to be returned. By default, we get the document as it was *before*
+  // the update.
+  
+
+  async function updatePost(post, title, content, author){
+    try {
+      let updateDoc = { $set: { title: title, content: content, author: author } };
+      let updateOptions = { returnOriginal: false };
+      const updateResult = await collection.findOneAndUpdate(
+        post,
+        updateDoc,
+        updateOptions,
+      );
+      console.log(`Here is the updated document:\n${JSON.stringify(updateResult.value)}\n`);
+      return updateResult.value;
+    } catch (err) {
+      console.error(`Something went wrong trying to update one document: ${err}\n`);
+    }
   }
 
 
