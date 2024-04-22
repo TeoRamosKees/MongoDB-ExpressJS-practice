@@ -146,7 +146,7 @@ async function run() {
   // a valid username and password! Note that in a production environment,
   // you do not want to store your password in plain-text here.
   const uri =
-    "mongodb+srv://teoramites:Lalocapo1.@customers.dm758jh.mongodb.net/?retryWrites=true&w=majority&appName=Customers";
+    "mongodb+srv://teoramites:teo@customers.dm758jh.mongodb.net/?retryWrites=true&w=majority&appName=Customers";
 
   // The MongoClient is the object that references the connection to our
   // datastore (Atlas, for example)
